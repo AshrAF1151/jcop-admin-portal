@@ -5,7 +5,7 @@ const RecentOrders = () => {
   const [recentInvoices, setRecentInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState("orders"); // New state for toggling views
+  const [viewMode, setViewMode] = useState("orders");
 
   useEffect(() => {
     const fetchRecentOrdersAndInvoices = async () => {
@@ -34,12 +34,11 @@ const RecentOrders = () => {
     fetchRecentOrdersAndInvoices();
   }, []);
 
-  // const toggleView = () => {
-  //   setViewMode((prevMode) => (prevMode === "orders" ? "invoices" : "orders"));
-  // };
-
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
+
+  const currentList =
+    viewMode === "orders" ? recentOrders : recentInvoices;
 
   return (
     <div className="border border-gray-300 rounded-lg shadow-md overflow-hidden max-w-md mx-auto">
@@ -61,44 +60,51 @@ const RecentOrders = () => {
           Daily Invoices
         </button>
       </div>
-      <div className="lg:min-h-44 max-h-70 overflow-y-auto p-1 space-y-1">
-        {(viewMode === "orders" ? recentOrders : recentInvoices).map((item) => (
-          <div
-            key={item.custNum || item.invNum}
-            className="bg-white lg:p-4 p-2 rounded-lg flex justify-between items-center border border-gray-200"
-          >
-            <div>
-              <p className="text-teal-400 font-semibold text-sm">{item.custName}</p>
-              <p className="text-gray-500 text-sm">{item.custNum}</p>
-            </div>
-            <div className="text-gray-500 text-xs">
-              {viewMode === "orders"
-                ? new Date(item.orderDate).toLocaleDateString()
-                : new Date(item.invDate).toLocaleDateString()}
-            </div>
-            <div>
-              {viewMode === "orders" ? (
-                <>
-                  <div className="text-teal-400 mb-1 text-sm">
-                    ${item.grandTotal.toFixed(2)}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {item.city}, {item.state}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="text-teal-400 mb-1">
-                    ${item.grandTotal.toFixed(2)}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    Invoice #{item.invNum}
-                  </div>
-                </>
-              )}
-            </div>
+
+      <div className="max-h-44 overflow-y-auto p-1 space-y-1">
+        {currentList.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            No daily {viewMode === "orders" ? "orders" : "invoices"} available.
           </div>
-        ))}
+        ) : (
+          currentList.map((item) => (
+            <div
+              key={item.custNum || item.invNum}
+              className="bg-white lg:p-4 p-2 rounded-lg flex justify-between items-center border border-gray-200"
+            >
+              <div>
+                <p className="text-teal-400 font-semibold text-sm">{item.custName}</p>
+                <p className="text-gray-500 text-sm">{item.custNum}</p>
+              </div>
+              <div className="text-gray-500 text-xs">
+                {viewMode === "orders"
+                  ? new Date(item.orderDate).toLocaleDateString()
+                  : new Date(item.invDate).toLocaleDateString()}
+              </div>
+              <div>
+                {viewMode === "orders" ? (
+                  <>
+                    <div className="text-teal-400 mb-1 text-sm">
+                      ${item.grandTotal.toFixed(2)}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {item.city}, {item.state}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-teal-400 mb-1">
+                      ${item.grandTotal.toFixed(2)}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Invoice #{item.invNum}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
